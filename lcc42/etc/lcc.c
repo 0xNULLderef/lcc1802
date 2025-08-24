@@ -57,6 +57,7 @@ extern char *peep[]; //wjr may 13
 //extern char *Ppeep[]; //wjr 21-6-2
 extern char *cpp[], *include[], *com[], *as[],*ld[], inputs[], *suffixes[];
 extern int option(char *);
+extern int resolve_prefix(char *exe);
 static int savetempflag=0; /*request to keep intermediate files*/
 static int errcnt;		/* number of errors */
 static int Eflag;		/* -E specified */
@@ -107,8 +108,14 @@ int main(int argc, char *argv[]) {
 	}
 	plist = append("-D__LCC__", 0);
 	initinputs();
-	if (getenv("LCCDIR"))
+	if (getenv("LCCDIR")) {
 		option(stringf("-lccdir=%s", getenv("LCCDIR")));
+	} else {
+		if (resolve_prefix(progname) != 0) {
+			fprintf(stderr, "failed to resolve prefix for exe \"%s\"\n", progname);
+			exit(1);
+		}
+	}
 
 	//printf("argc is %d\n",argc); //wjr debug
 	for (nf = 0, i = j = 1; i < argc; i++) {
@@ -263,8 +270,10 @@ static int callsys(char **av) {
 	static char **argv;
 	static int argc;
 
+  fprintf(stderr, "callsys: ");
 	for (i = 0; av[i] != NULL; i++)
-		;
+    fprintf(stderr, "%s ", av[i]);
+  fprintf(stderr, "\n");
 	if (i + 1 > argc) {
 		argc = i + 1;
 		if (argv == NULL)
