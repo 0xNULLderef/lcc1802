@@ -28,6 +28,7 @@ struct list {		/* circular list nodes: */
 
 static void *alloc(int);
 static List append(char *,List);
+static List append_comma_separated(char *,List);
 extern char *basepath(char *);
 static int callsys(char *[]);
 extern char *concat(char *, char *);
@@ -212,6 +213,33 @@ static List append(char *str, List list) {
 	} else
 		p->link = p;
 	return p;
+}
+
+/* append - append comma separated substrings as nodes onto list, return new list */
+static List append_comma_separated(char *str, List list) {
+	size_t str_len = strlen(str);
+	char *str_owned = strdup(str);
+	size_t str_cur = 0;
+
+	do {
+		size_t str_start = str_cur;
+
+		while (str_owned[str_cur] != '\0') {
+			// find all ','s, replace with '\0', unless it has a leading '\' before it
+			if (str_owned[str_cur] == ',' &&
+				(str_cur == 0 || str_owned[str_cur - 1] != '\\')) {
+				str_owned[str_cur] = '\0';
+				str_cur++;
+				break;
+			}
+
+			str_cur++;
+		}
+
+		list = append(&str_owned[str_start], list);
+	} while (str_cur < str_len);
+
+	return list;
 }
 
 /* basepath - return base name for name, e.g. /usr/drh/foo.c => foo */
@@ -612,25 +640,25 @@ static void interrupt(int n) {
 static void opt(char *arg) {
 	switch (arg[1]) {	/* multi-character options */
 	case 'W':	/* -Wxarg */
-		if (arg[2] && arg[3])
+		if (arg[2] && arg[3] == ',' && arg[4])
 			switch (arg[2]) {
 			case 'o':
-				if (option(&arg[3]))
+				if (option(&arg[4]))
 					return;
 				break;
 			case 'p':
-				plist = append(&arg[3], plist);
+				plist = append_comma_separated(&arg[4], plist);
 				return;
 			case 'f':
-				if (strcmp(&arg[3], "-C") == 0 && !option("-b"))
+				if (strcmp(&arg[4], "-C") == 0 && !option("-b"))
 					break;	/* -C requires that -b is supported */
-				clist = append(&arg[3], clist);
-				if (strcmp(&arg[3], "-unsigned_char=1") == 0) {
+				clist = append_comma_separated(&arg[4], clist);
+				if (strcmp(&arg[4], "-unsigned_char=1") == 0) {
 					plist = append("-D__CHAR_UNSIGNED__", plist);
 					plist = append("-U_CHAR_IS_SIGNED", plist);
 				}
 #define xx(name,k) \
-				if (strcmp(&arg[3], "-wchar_t=" #name) == 0) \
+				if (strcmp(&arg[4], "-wchar_t=" #name) == 0) \
 					plist = append("-D_WCHAR_T_SIZE=" #k, plist);
 xx(unsigned_char,1)
 xx(unsigned_short,2)
@@ -638,10 +666,10 @@ xx(unsigned_int,4)
 #undef xx
 				return;
 			case 'a':
-				alist = append(&arg[3], alist);
+				alist = append_comma_separated(&arg[4], alist);
 				return;
 			case 'l':
-				llist[0] = append(&arg[3], llist[0]);
+				llist[0] = append_comma_separated(&arg[4], llist[0]);
 				return;
 			}
 		fprintf(stderr, "%s: %s ignored\n", progname, arg);
