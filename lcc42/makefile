@@ -23,7 +23,7 @@ B=$(BUILDDIR)/
 T=$(TSTDIR)/
 
 what:
-	-@echo make all rcc lburg cpp lcc bprint copt liblcc triple clean clobber
+	-@echo make all rcc lburg cpp lcc bprint copt liblcc triple clean clobber install
 
 all::	rcc lburg cpp lcc bprint liblcc copt
 
@@ -313,3 +313,14 @@ $B1rcc$E:	$Brcc$E $Blcc$E $Bcpp$E
 		$C -o $@ -B$B $(RCCSRCS)
 $B2rcc$E:	$B1rcc$E
 		$C -o $@ -B$B1 $(RCCSRCS)
+
+install: all
+	mkdir -p $(DESTDIR)/bin
+	mkdir -p $(DESTDIR)/share/include
+	cp $Blcc $(DESTDIR)/bin/lcc
+	cp $Brcc $(DESTDIR)/bin/rcc
+	cp $Bcpp $(DESTDIR)/bin/cpp
+	cp $Blcc $(DESTDIR)/bin/lcc
+	cp $Bbprint $(DESTDIR)/bin/bprint
+	cp $Bcopt $(DESTDIR)/bin/copt
+	cp $Blburg $(DESTDIR)/bin/lburg
