@@ -316,7 +316,7 @@ $B2rcc$E:	$B1rcc$E
 
 install: all
 	mkdir -p $(DESTDIR)/bin
-	mkdir -p $(DESTDIR)/share/include
+	mkdir -p $(DESTDIR)/share/lcc1802/include
 	cp $Blcc $(DESTDIR)/bin/lcc
 	cp $Brcc $(DESTDIR)/bin/rcc
 	cp $Bcpp $(DESTDIR)/bin/cpp
