@@ -270,10 +270,7 @@ static int callsys(char **av) {
 	static char **argv;
 	static int argc;
 
-  fprintf(stderr, "callsys: ");
-	for (i = 0; av[i] != NULL; i++)
-    fprintf(stderr, "%s ", av[i]);
-  fprintf(stderr, "\n");
+	for (i = 0; av[i] != NULL; i++);
 	if (i + 1 > argc) {
 		argc = i + 1;
 		if (argv == NULL)
