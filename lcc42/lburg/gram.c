@@ -23,6 +23,7 @@ YYCONST static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley +Cygnus.28) 01/20/91
 #endif
 #line 2 "lburg/gram.y"
 #include <stdio.h>
+#include <stdlib.h>
 #include "lburg.h"
 static char rcsid[] = "$Id: gram.c,v 2.1 2002/08/28 23:28:22 drh Exp $";
 /*lint -e616 -e527 -e652 -esym(552,yynerrs) -esym(563,yynewstate,yyerrlab) */

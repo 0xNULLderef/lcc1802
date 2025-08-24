@@ -77,7 +77,7 @@ char *tempdir = TEMPDIR;	/* directory for temporary files */
 static char *progname;
 static List lccinputs;		/* list of input directories */
 
-main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 	int i, j, nf;
 
 	progname = argv[0];
@@ -109,6 +109,7 @@ main(int argc, char *argv[]) {
 	initinputs();
 	if (getenv("LCCDIR"))
 		option(stringf("-lccdir=%s", getenv("LCCDIR")));
+
 	//printf("argc is %d\n",argc); //wjr debug
 	for (nf = 0, i = j = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-o") == 0) {

@@ -25,13 +25,13 @@ struct onode {
 } *opts = 0;
 
 /* error - report error and quit */
-void error(s) char *s; {
+void error(char* s) {
 	fputs(s, stderr);
 	exit(1);
 }
 
 /* connect - connect p1 to p2 */
-void connect(p1, p2) struct lnode *p1, *p2; {
+void connect(struct lnode *p1, struct lnode *p2) {
 	if (p1 == 0 || p2 == 0)
 		error("connect: can't happen\n");
 	p1->l_next = p2;
@@ -39,7 +39,7 @@ void connect(p1, p2) struct lnode *p1, *p2; {
 }
 
 /* insert - insert a new node with text s before node p */
-void insert(s, p) char *s; struct lnode *p; {
+void insert(char *s, struct lnode *p) {
 	struct lnode *n;
 
 	n = (struct lnode *) malloc(sizeof *n);
@@ -48,9 +48,11 @@ void insert(s, p) char *s; struct lnode *p; {
 	connect(n, p);
 }
 
+char *install(char *str);
+
 /* getlst - link lines from fp in between p1 and p2 */
-int getlst(fp, quit, p1, p2) FILE *fp; char *quit; struct lnode *p1, *p2; {
-	char *install(), lin[MAXLINE];
+int getlst(FILE *fp, char *quit, struct lnode *p1, struct lnode *p2) {
+	char lin[MAXLINE];
 	int ngot=0; //wjr
 	connect(p1, p2);
 	while (fgets(lin, MAXLINE, fp) != NULL && strcmp(lin, quit)){
@@ -65,7 +67,7 @@ int getlst(fp, quit, p1, p2) FILE *fp; char *quit; struct lnode *p1, *p2; {
 }
 
 /* init - read patterns file */
-void init(fp) FILE *fp; {
+void init(FILE *fp) {
 	struct lnode head, tail;
 	struct onode *p, **next;
 
@@ -96,7 +98,7 @@ void init(fp) FILE *fp; {
 
 
 /* install - install str in string table */
-char *install(str) char *str; {
+char *install(char *str) {
 	register struct hnode *p;
 	register char *p1, *p2, *s;
 	register int i;
@@ -123,14 +125,16 @@ char *install(str) char *str; {
 	return (p->h_str);
 }
 
+struct lnode *opt(struct lnode *r);
+
 /* main - peephole optimizer */
-int main(argc, argv) int argc; char **argv; {
+int main(int argc, char **argv) {
 		int nin=0,nout=0;
         FILE *fp;
         FILE *finp = stdin;
         FILE *fout = stdout;
         int i;
-        struct lnode head, *p, *opt(), tail;
+        struct lnode head, *p, tail;
 		char ebuf[BUFSIZ];
 		setbuf(stderr, ebuf);
         //while(1);
@@ -164,7 +168,7 @@ int main(argc, argv) int argc; char **argv; {
         return 0;
 }
 /* match - match ins against pat and set vars */
-int match(ins, pat, vars) char *ins, *pat, **vars; {
+int match(char *ins, char *pat, char **vars) {
 	char *p, lin[MAXLINE];
 	//printf("match(%s,%s)\n",ins,pat); //wjr june 24
 	while (*ins && *pat){
@@ -185,11 +189,13 @@ int match(ins, pat, vars) char *ins, *pat, **vars; {
 	return *pat==*ins;
 }
 
+struct lnode *rep(struct lnode *p1, struct lnode *p2, struct lnode *new, char **vars);
+
 /* opt - replace instructions ending at r if possible */
-struct lnode *opt(r) struct lnode *r; {
+struct lnode *opt(struct lnode *r) {
 	char *vars[10];
 	int i;
-	struct lnode *c, *p, *rep();
+	struct lnode *c, *p;
 	struct onode *o;
 
 	for (o = opts; o; o = o->o_next) {
@@ -209,9 +215,11 @@ struct lnode *opt(r) struct lnode *r; {
 	return r->l_next;
 }
 
+char *subst(char *pat, char **vars);
+
 /* rep - substitute vars into new and replace lines between p1 and p2 */
-struct lnode *rep(p1, p2, new, vars) struct lnode *p1, *p2, *new; char **vars; {
-	char *args[10], *exec(), *subst();
+struct lnode *rep(struct lnode *p1, struct lnode *p2, struct lnode *new, char **vars) {
+	char *args[10];
 	int i;
 	struct bnode *b;
 	struct lnode *p, *psav;
@@ -238,8 +246,8 @@ struct lnode *rep(p1, p2, new, vars) struct lnode *p1, *p2, *new; char **vars; {
 }
 
 /* subst - return result of substituting vars into pat */
-char *subst(pat, vars) char *pat, **vars; {
-	char *install(), lin[MAXLINE], *s;
+char *subst(char *pat, char **vars) {
+	char lin[MAXLINE], *s;
 	int i;
 
 	i = 0;
