@@ -724,7 +724,7 @@ static void progbeg(int argc, char *argv[]) {
         	"retVal:\tequ\t%d\n" "regArg1: equ	%d\n" "regArg2: equ	%d\n",
         	reg_sp_actual,REG_MEMADDR,REG_RETADDR,REG_RETVAL,REG_FIRST_ARG,REG_FIRST_ARG+1);
 	if (wjrcpu1805){ //compiling for 1804/1805/1806
-		print("\tcpu\t1805\n");
+		print("\tcpu\t1805a\n");
 	}
 	if (wjrenv){ //environment includes specified
 		print("\tinclude %sprolog.inc\n",wjrenv);

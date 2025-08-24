@@ -75,7 +75,7 @@ R13:	equ	13
 R14:	equ	14
 R15:	equ	15
 RL0:	equ	1 ;long register pairs are identified by their odd numbered register
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
 RL4:	equ	5 ;17-10-20 RL4/5 register pair is permitted for 1806 only.
  endif
 RL6:	equ	7 
