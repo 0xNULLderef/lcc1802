@@ -57,6 +57,7 @@ typedef struct tokenrow {
 
 typedef struct source {
 	char	*filename;	/* name of file of the source */
+	int filenameowned;
 	int	line;		/* current line number */
 	int	lineinc;	/* adjustment for \\n lines */
 	uchar	*inb;		/* input buffer */
@@ -95,7 +96,7 @@ void	fixlex(void);
 void	setup(int, char **);
 int	gettokens(Tokenrow *, int);
 int	comparetokens(Tokenrow *, Tokenrow *);
-Source	*setsource(char *, FILE *, char *);
+Source	*setsource(char *, FILE *, char *, int);
 void	unsetsource(void);
 void	puttokens(Tokenrow *);
 void	process(Tokenrow *);
@@ -141,6 +142,7 @@ int	newhideset(int, Nlist *);
 int	unionhideset(int, int);
 void	iniths(void);
 void	setobjname(char *);
+void freelistadd(void *);
 #define	rowlen(tokrow)	((tokrow)->lp - (tokrow)->bp)
 
 extern	char *xoutp;

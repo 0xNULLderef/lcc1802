@@ -41,7 +41,7 @@ newhideset(int hs, Nlist *np)
 {
 	int i, len;
 	Nlist *nhs[HSSIZ+3];
-	Hideset hs1, hs2;
+	volatile Hideset hs1, hs2;
 
 	len = inserths(nhs, hidesets[hs], np);
 	for (i=0; i<nhidesets; i++) {

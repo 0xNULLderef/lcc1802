@@ -69,7 +69,7 @@ doinclude(Tokenrow *trp)
 	if (fd != NULL) {
 		if (++incdepth > 10)
 			error(FATAL, "#include too deeply nested");
-		setsource((char*)newstring((uchar*)iname, strlen(iname), 0), fd, NULL);
+		setsource((char*)newstring((uchar*)iname, strlen(iname), 0), fd, NULL, 1);
 		genline();
 	} else {
 		trp->tp = trp->bp+2;

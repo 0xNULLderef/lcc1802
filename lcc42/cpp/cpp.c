@@ -17,6 +17,15 @@ int	ifdepth;
 int	ifsatisfied[NIF];
 int	skipping;
 
+typedef struct FreeListLink {
+	void *buffer;
+	struct FreeListLink *next;
+} FreeListLink;
+
+FreeListLink* freelist = NULL;
+
+void freelistfreeall();
+
 char rcsid[] = "$Revision: 1.6 $ $Date: 2001/03/27 19:37:59 $";
 
 int
@@ -36,6 +45,8 @@ main(int argc, char **argv)
 	iniths();
 	genline();
 	process(&tr);
+	dofree(tr.bp);
+	freelistfreeall();
 	flushout();
 	fflush(stderr);
 	exit(nerrs > 0);
@@ -320,4 +331,20 @@ error(enum errtype type, char *string, ...)
 	if (type!=WARNING)
 		nerrs = 1;
 	fflush(stderr);
+}
+
+void freelistadd(void *buffer) {
+	FreeListLink *link = new(FreeListLink);
+	link->buffer = buffer;
+	link->next = freelist;
+	freelist = link;
+}
+
+void freelistfreeall() {
+	while (freelist) {
+		FreeListLink *link = freelist;
+		freelist = link->next;
+		dofree(link->buffer);
+		dofree(link);
+	}
 }

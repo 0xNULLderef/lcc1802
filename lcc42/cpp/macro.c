@@ -78,6 +78,7 @@ dodefine(Tokenrow *trp)
 		Tokenrow *tap;
 		tap = normtokenrow(args);
 		dofree(args->bp);
+		dofree(args);
 		args = tap;
 	}
 	np->ap = args;
@@ -136,7 +137,7 @@ expandrow(Tokenrow *trp, char *flag)
 	Nlist *np;
 
 	if (flag)
-		setsource(flag, NULL, "");
+		setsource(flag, NULL, "", 0);
 	for (tp = trp->tp; tp<trp->lp; ) {
 		if (tp->type!=NAME
 		 || quicklook(tp->t[0], tp->len>1?tp->t[1]:0)==0
@@ -191,12 +192,18 @@ expand(Tokenrow *trp, Nlist *np)
 		ntokc = gatherargs(trp, atr, &narg);
 		if (narg<0) {			/* not actually a call (no '(') */
 			/* gatherargs has already pushed trp->tr to the next token */
+			dofree(ntr.bp);
 			return;
 		}
 		if (narg != rowlen(np->ap)) {
 			error(ERROR, "Disagreement in number of macro arguments");
 			trp->tp->hideset = newhideset(trp->tp->hideset, np);
 			trp->tp += ntokc;
+			dofree(ntr.bp);
+			for (i=0; i<narg; i++) {
+				dofree(atr[i]->bp);
+				dofree(atr[i]);
+			}
 			return;
 		}
 		substargs(np, &ntr, atr);	/* put args into replacement */
@@ -379,7 +386,7 @@ doconcat(Tokenrow *trp)
 			strncpy((char*)tt, (char*)ltp->t, ltp->len);
 			strncpy((char*)tt+ltp->len, (char*)ntp->t, ntp->len);
 			tt[len] = '\0';
-			setsource("<##>", NULL, tt);
+			setsource("<##>", NULL, tt, 0);
 			maketokenrow(3, &ntr);
 			gettokens(&ntr, 1);
 			unsetsource();

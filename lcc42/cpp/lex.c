@@ -539,7 +539,7 @@ fillbuf(Source *s)
  * if fd==NULL and str, then from the string.
  */
 Source *
-setsource(char *name, FILE *fd, char *str)
+setsource(char *name, FILE *fd, char *str, int filenameowned)
 {
 	Source *s = new(Source);
 	int len;
@@ -548,6 +548,7 @@ setsource(char *name, FILE *fd, char *str)
 	s->lineinc = 0;
 	s->fd = fd;
 	s->filename = name;
+	s->filenameowned = filenameowned;
 	s->next = cursource;
 	s->ifdepth = 0;
 	cursource = s;
@@ -574,8 +575,14 @@ unsetsource(void)
 
 	if (s->fd != NULL) {
 		fclose(s->fd);
-		dofree(s->inb);
 	}
+
+	if (s->inb)
+		dofree(s->inb);
+
+	if (s->filenameowned)
+		dofree(s->filename);
+
 	cursource = s->next;
 	dofree(s);
 }

@@ -57,15 +57,15 @@ static const char wstab[] = {
 	1,	/* CBRA */
 	1,	/* CKET */
 	0,	/* ASPLUS */
- 	0,	/* ASMINUS */
- 	0,	/* ASSTAR */
- 	0,	/* ASSLASH */
- 	0,	/* ASPCT */
- 	0,	/* ASCIRC */
- 	0,	/* ASLSH */
+	0,	/* ASMINUS */
+	0,	/* ASSTAR */
+	0,	/* ASSLASH */
+	0,	/* ASPCT */
+	0,	/* ASCIRC */
+	0,	/* ASLSH */
 	0,	/* ASRSH */
- 	0,	/* ASOR */
- 	0,	/* ASAND */
+	0,	/* ASOR */
+	0,	/* ASAND */
 	0,	/* ELLIPS */
 	0,	/* DSHARP1 */
 	0,	/* NAME1 */
@@ -164,6 +164,7 @@ makespace(Tokenrow *trp)
 	if (wstab[tp->type] || trp->tp>trp->bp && wstab[(tp-1)->type])
 		return;
 	tt = newstring(tp->t, tp->len, 1);
+	freelistadd(tt);;
 	*tt++ = ' ';
 	tp->t = tt;
 	tp->wslen = 1;
@@ -233,6 +234,7 @@ normtokenrow(Tokenrow *trp)
 {
 	Token *tp;
 	Tokenrow *ntrp = new(Tokenrow);
+	uchar *t;
 	int len;
 
 	len = trp->lp - trp->tp;
@@ -242,7 +244,9 @@ normtokenrow(Tokenrow *trp)
 	for (tp=trp->tp; tp < trp->lp; tp++) {
 		*ntrp->lp = *tp;
 		if (tp->len) {
-			ntrp->lp->t = newstring(tp->t, tp->len, 1);
+			t = newstring(tp->t, tp->len, 1);
+			ntrp->lp->t = t;
+			freelistadd(t);
 			*ntrp->lp->t++ = ' ';
 			if (tp->wslen)
 				ntrp->lp->wslen = 1;
@@ -267,7 +271,7 @@ peektokens(Tokenrow *trp, char *str)
 	if (str)
 		fprintf(stderr, "%s ", str);
 	if (tp<trp->bp || tp>trp->lp)
-		fprintf(stderr, "(tp offset %d) ", tp-trp->bp);
+		fprintf(stderr, "(tp offset %d) ", (int)(tp-trp->bp));
 	for (tp=trp->bp; tp<trp->lp && tp<trp->bp+32; tp++) {
 		if (tp->type!=NL) {
 			int c = tp->t[tp->len];
@@ -308,7 +312,8 @@ puttokens(Tokenrow *trp)
 				fwrite(wbuf, 1, wbp-wbuf, stdout);
 			fwrite((char *)p, 1, len, stdout);
 			wbp = wbuf;
-		} else {	
+		} else {
+			memset(wbp, 'A', len);
 			memcpy(wbp, p, len);
 			wbp += len;
 		}

@@ -136,7 +136,7 @@ expandrow(Tokenrow *trp, char *flag)
 	Nlist *np;
 
 	if (flag)
-		setsource(flag, NULL, "");
+		setsource(flag, NULL, "", 0);
 	for (tp = trp->tp; tp<trp->lp; ) {
 		if (tp->type!=NAME
 		 || quicklook(tp->t[0], tp->len>1?tp->t[1]:0)==0
@@ -379,7 +379,7 @@ doconcat(Tokenrow *trp)
 			strncpy((char*)tt, (char*)ltp->t, ltp->len);
 			strncpy((char*)tt+ltp->len, (char*)ntp->t, ntp->len);
 			tt[len] = '\0';
-			setsource("<##>", NULL, tt);
+			setsource("<##>", NULL, tt, 0);
 			maketokenrow(3, &ntr);
 			gettokens(&ntr, 1);
 			unsetsource();

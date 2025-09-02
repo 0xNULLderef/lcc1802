@@ -42,10 +42,11 @@ setup(int argc, char **argv)
 			break;
 		case 'D':
 		case 'U':
-			setsource("<cmdarg>", NULL, optarg);
+			setsource("<cmdarg>", NULL, optarg, 0);
 			maketokenrow(3, &tr);
 			gettokens(&tr, 1);
 			doadefine(&tr, c);
+			dofree(tr.bp);
 			unsetsource();
 			break;
 		case 'M':
@@ -85,7 +86,7 @@ setup(int argc, char **argv)
 		setobjname(fp);
 	includelist[NINCLUDE-1].always = 0;
 	includelist[NINCLUDE-1].file = dp;
-	setsource(fp, fd, NULL);
+	setsource(fp, fd, NULL, 0);
 }
 
 
