@@ -247,7 +247,7 @@ Targets implemented: VIP
 
 void vidcharxy(unsigned char x, unsigned char y, unsigned char character)------------------------------------------------------------------------Output specified character to video on position specified in x, y (top left corner is 0, 0). Include file: video/pixie_video.h#define: PIXIE_TEXT and PIXIE_TEXT96
 Targets implemented: VIPvoid vidstrcpyxy(unsigned char x, unsigned char y, char * text)--------------------------------------------------------------Output text string to video on position specified in x, y (top left corner is 0, 0). Include file: video/pixie_video.h#define: PIXIE_TEXT and PIXIE_TEXT96
-Targets implemented: VIP
+Targets implemented: VIP
 7. Compiler and c flags
 =======================
 
