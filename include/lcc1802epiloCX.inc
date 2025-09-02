@@ -14,7 +14,7 @@
 ;april 4 adding digit count argument to dubdabx
 ;Oct 2, 2013 redoing mulu2 for faster results with small arg1 - dhrystone
 ;oct 12 divu2 redone for faster perf on small numbers, remainder now in regarg1 - modu2/modi2 changed to match
-;16-09-20 allow stack relocation 
+;16-09-20 allow stack relocation
 ;16-11-26 calculate onems delay from cpu speed in LCC1802CPUSPEED
 ;17-03-07 adjusting stack offset for 1805/6 stack discipline
 ;17-03-13 protecting work areas in divi2,divi4 routines from 1806 SCAL
@@ -35,7 +35,7 @@ rwork:	equ	memAddr	;work register
 ;20-06-19 changed lbr die to br on return from main
 ;20-07-10 (Marcel) added orgc at start to solve issue with branches to data area (suggested by Bill)
 ;20-08-01 dubdabx moved to nstdlib.inc
-;21-02-04 init code moved to beginning of module 
+;21-02-04 init code moved to beginning of module
 ;	  changed call and return to preserve D for LCCPX as well as LCCCX
 ;;function_start lcc1802epilog.inc void function(void)
  orgc
@@ -47,7 +47,7 @@ lcc1802init:
 	pushr 4
 	pushr 5
 	pushr 7			;wjr 20-04-29 save/restore BASIC registers
-	pushr 9	
+	pushr 9
 	pushr 11
 	pushr 15
 	ldiReg	RCALL,_call
@@ -61,7 +61,7 @@ lcc1802init:
 	popr 4
 	Cretn			;wjr 20-04-28 hopefully back to COMX Basic
   ELSE
-  IF    MOMCPU<>$1805		;for 1806 use SCAL 
+  IF    MOMCPUNAME<>"1805A"		;for 1806 use SCAL
 	ldiReg	RCALL,_call
 	ldiReg	RRET,_return
   ELSE
@@ -117,7 +117,7 @@ _modU2:	;16 bit unsigned remainder
     ghi regArg1
     phi retVal
     Cretn
-    
+
 _modI2:	;16 bit signed remainder
 	; just calls the 16 bit division then puts remainder into return value
     Ccall _divI2
@@ -127,7 +127,7 @@ _modI2:	;16 bit signed remainder
     phi retVal
     Cretn
  ENDIF
-_out4:	
+_out4:
 	glo	regArg1
 	dec	sp
 	str	sp
@@ -149,7 +149,7 @@ _call:	sex	SP ;make sure X=SP
 	glo	retAddr ;save previous return pointer on stack
 	stxd
 	ghi	retAddr
-	stxd	
+	stxd
 	glo	RPC ;copy old PC to retAddr
 	plo	retAddr
 	ghi	RPC
@@ -166,7 +166,7 @@ _call:	sex	SP ;make sure X=SP
   ENDIF
 	br	_call-1
 
-;Standard subroutine return 
+;Standard subroutine return
   IFDEF LCCCX	;wjr 20-04-28 setup for COMX
 	align 16
   ENDIF
@@ -174,7 +174,7 @@ _call:	sex	SP ;make sure X=SP
 	pagefit 16
   ENDIF
 	sep	RPC	;return to the original program
-_return: 
+_return:
   IFDEF LCCCX	;wjr 20-04-28 setup for COMX
 	phi	memaddr	;save D #wjr 20-05-01
         sex r2		;fix x register per marcel
@@ -203,7 +203,7 @@ _return:
 _oneMs:		;execute 1ms worth of instructions including call(15)/return(10) sequence. takes about 1 ms
 ;subroutine overhead soaks up 27 instruction time.
 ;each loop is 2 instruction times
-;so the number of loops needed is 
+;so the number of loops needed is
 ;CPU speed/16000 less the 27 all divide by two
 	IFNDEF	CPUSPEED
 CPUSPEED EQU 1600000	;1.6MHZ default
@@ -212,7 +212,7 @@ CPUSPEED EQU 1600000	;1.6MHZ default
 SUBOVHD  EQU 14		;1806 SCAL/SRET subroutine overhead
  else
 SUBOVHD  EQU 27		;default SCRT subroutine overhead
- endif 
+ endif
       IF (CPUSPEED/16000)>=(SUBOVHD+4);fast enough to need more than subroutine overhead
 	ldi	(CPUSPEED/1000/16-SUBOVHD)/4
 $$mslf:	smi	1
@@ -223,7 +223,7 @@ $$mslf:	smi	1
 	Cretn
 
 
- IFNDEF  LCCNOMATH		;wjr 17-04-09 disable 16 bit math	
+ IFNDEF  LCCNOMATH		;wjr 17-04-09 disable 16 bit math
 	align 256
 ;16 bit right shifting multiply which is faster for smaller operands
 ; credit to http://map.grauw.nl/articles/mult_div_shifts.php#lrmultr
@@ -249,8 +249,8 @@ $$mulrdone:		;here the product is in retval
 ;credit to http://research.microsoft.com/pubs/70645/tr-2008-141.pdf
 ;changed oct 12 to save R10 & 1/2 R11 on stack
 _divu2: ;retval=regarg1(x or dividend)/regarg2(y or divisor)
-	;uses R14(rwork) to hold original divisor y0, 
-	;regarg1 to hold develop remainder, 
+	;uses R14(rwork) to hold original divisor y0,
+	;regarg1 to hold develop remainder,
 	;R10 to hold working dividend R11.0 as a temp
 testsub: macro reg1,reg2	;test subtraction of reg2 from reg1
 				;result in D, rwork.hi, DF
@@ -264,7 +264,7 @@ testsub: macro reg1,reg2	;test subtraction of reg2 from reg1
 	ghi reg1
 	smb
 	endm
-	
+
 ;	pushf R10	;save R10 & leave stack down 1
 	pushr R10	;default push leaves stack clean
 	glo R11		;and bottom
@@ -272,22 +272,22 @@ testsub: macro reg1,reg2	;test subtraction of reg2 from reg1
 	cpy2 R10,regarg1
 	ld2z retval	;quotient
 	cpy2 rwork,regarg2
-	
+
 	testsub R10,regarg2
 	bnf $$computequot	;DF=0 means it didn't fit
 	phi R10	;R10=R10-regarg2
 	glo R11
 	plo R10
-	
+
 $$again:	;this is the divisor doubling phase
  	testsub R10,regarg2
  	bnf $$computequot	;df=0 means it didn't fit
 	phi R10	;R10=R10-regarg2
 	glo R11
-	plo R10 	
+	plo R10
  	shl2 regarg2	;y=y+y
  	br $$again
- 	
+
  $$computequot:	;here we're computing the quotient
  	testsub regarg1,regarg2
  	bnf $$testexit
@@ -327,7 +327,7 @@ _divI2:
     negI2 regArg1,regArg1 ;flip it to positive
 $$pos1: ;1st is now +v, check 2nd
     ghi regArg2
-    xor	
+    xor
     str sp ;the stack now has bit 8 set if the signs are different
     ghi regArg2
     shl
@@ -379,9 +379,9 @@ $$endlp:
 	dec memaddr	;check the cycle count
 	glo memaddr
 	bnz $$loop	;back for more if needed
-	
+
 	Cretn		;and we're done - quotient is in RL8, remainder in Rp1p2
-		
+
 
 _mulu4:
 	;this is a 32 bit signed multiplication using booth's algorithm
@@ -418,8 +418,8 @@ $$shift:
     dec memaddr		;cycle count
     glo memaddr
     bnz $$mloop		;repeat cycle once for each bit position
-    
-    cretn	;and we're done. if Rp1p2 is not 0 or -1 we've overflowed 
+
+    cretn	;and we're done. if Rp1p2 is not 0 or -1 we've overflowed
 
 	align 256
 ;signed integer division RL8=RL8/RL10, remainder in Rp1p2
@@ -433,7 +433,7 @@ _divI4:
     negI4 RL8,RL8 ;flip it to positive
 $$pos1: ;1st is now +v, check 2nd
     ghi RL10-1
-    xor	
+    xor
     str sp ;the stack now has bit 8 set if the signs are different
     ghi RL10-1
     shl
@@ -451,17 +451,17 @@ $$pos2: ; both args now +v
 $$done:
     Cretn ;and we're done - I hope!
  ENDIF
- IFNDEF  LCCNOLONG		;wjr 17-04-09 disable 32 bit math	
+ IFNDEF  LCCNOLONG		;wjr 17-04-09 disable 32 bit math
 _modU4:	;32 bit unsigned remainder
 	; just calls the 32 bit division then puts remainder into return value
     Ccall _divU4
     cpy4 RL8,Rp1p2
     Cretn
-    
+
 _modI4:	;32 bit signed remainder
 	; just calls the 32 bit division then puts remainder into return value
     Ccall _divI4
     cpy4 RL8,Rp1p2
     Cretn
- ENDIF	
+ ENDIF
 ;;function_end lcc1802epilog.inc

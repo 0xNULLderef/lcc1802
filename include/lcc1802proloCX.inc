@@ -21,9 +21,9 @@
 ;mar 28 adding jumpv macro
 ;may 15 adding jnzu1, jzu1 macros
 ;june 21 adding demote macro
-;Oct 2, 2013 DH version for dhrystone optimization 
+;Oct 2, 2013 DH version for dhrystone optimization
 ;Oct 2, 2013 added str2 macro 2 byte store at addr pointed to by register
-;oct 4,	added st2i 2 byte immediate sore, pushf,pushm,pushl sequences, 
+;oct 4,	added st2i 2 byte immediate sore, pushf,pushm,pushl sequences,
 ;oct 24, added ldaXs for stack pointed addresses, added mvcn1, mvc1 for 1 byte storage to storage moves, jneu1i for single byte immediate compare
 ;Feb 17 2014 added "inc sp" to restore stack pointer in jeqI1, affected strncmp.
 ;Feb 18 2017 added org to LCCCODELOC to allow for non-zero origin
@@ -57,7 +57,7 @@
   ENDIF				;wjr 20-05-29 allow code relocation
       org CODELOC		;wjr 20-05-29 allow code relocation
   set CSEG,1			;wjr-20-06-2 set current segment to code
-  
+
 R0:	equ	0
 R1:	equ	1
 R2:	equ	2
@@ -78,7 +78,7 @@ RL0:	equ	1 ;long register pairs are identified by their odd numbered register
  if MOMCPUNAME="1805A"
 RL4:	equ	5 ;17-10-20 RL4/5 register pair is permitted for 1806 only.
  endif
-RL6:	equ	7 
+RL6:	equ	7
 RL8:	equ	9 ;temp 1
 RL10:	equ	11;temp 2
 RL12:	equ	13 ;return value register for longs
@@ -92,12 +92,12 @@ RPC:	equ 	3 ; standard program counter
 
 	listing	off
 	IF VERSION<=0x142F ;syntax for turning off macro expansion changed with version 4.1.2
-		MACEXP OFF	
-	ELSE	
+		MACEXP OFF
+	ELSE
 		MACEXP_DFT OFF
 	ENDIF
 ;macro definitions
-pagefit: macro bytesneeded	
+pagefit: macro bytesneeded
 	if ($#256)>(255-bytesneeded)
 	    align 256,0xe2
 	endif
@@ -121,7 +121,7 @@ orgc:	macro		;switching from code to data - rom to ram
 	ENDIF
      ENDIF
 	endm
-	
+
 orgd:	macro		;switching from data to code - ram to rom
      IFDEF  DATALOC
      	IF CSEG=1	;if we're in a code segment
@@ -160,7 +160,7 @@ reserveS: macro	framesize
 	endm
 	endm
 reserveL: macro framesize
-;this calculation looks awkward but we're adjusting the top byte of sp first 
+;this calculation looks awkward but we're adjusting the top byte of sp first
 ;so if there's an interrupt in mid calculation the sp will be pointing to free memory
 	glo sp		;grab low byte of stack pointer
 	smi framesize&255 ;claculate new low byte
@@ -184,7 +184,7 @@ releaseS: macro	framesize
 	endm
 	endm
 releaseL: macro	framesize	;release the stack frame
-;for release we adjust the low byte first 
+;for release we adjust the low byte first
 ;so if there's an interrupt in mid calculation the sp will be pointing to free memory
 	alu2i sp,sp,framesize,adi,adci
 	endm
@@ -195,18 +195,18 @@ $$nxt:	glo	retVal
 	ghi	retVal
 	lbz	$$done
 $$go:	lda	src		;get byte to move - nb, src reg altered
-	str	tgt		;place in dest 
+	str	tgt		;place in dest
 	inc	tgt		;advance target ptr - nb dest reg altered
 	dec	retval		;decrease move count
 	lbr	$$nxt
 $$done:
 	endm
-	
 
-	
+
+
 jcI2:	macro	reg1,reg2,brop,label	;signed comparison -20 bytes, ls@13,lb@17
 	glo	reg2
-	str	sp 
+	str	sp
 	glo	reg1
 	sm
 	ghi	reg2
@@ -219,7 +219,7 @@ jcI2:	macro	reg1,reg2,brop,label	;signed comparison -20 bytes, ls@13,lb@17
 	lsnf	;bypass the flip if signs were the same
 	xri	01     ;invert original df if signs were different
 	shrc           ;put it back in df
-	brop	label  ;execute 
+	brop	label  ;execute
 	endm
 xsnf:	macro	;either long skip or short branch around 2 bytes for pixie
   IFDEF LCCPX
@@ -240,7 +240,7 @@ xsdf:	macro	;either long skip or short branch around 2 bytes for pixie
 jcI4:	macro	reg1,reg2,brop,label	;signed comparison of two longs -28 bytes, ls@21, lbr@25
 	dec	sp ;make a work area
 	glo	reg2	;lowest order byte
-	str	sp 
+	str	sp
 	glo	reg1
 	sm
 	ghi	reg2
@@ -248,7 +248,7 @@ jcI4:	macro	reg1,reg2,brop,label	;signed comparison of two longs -28 bytes, ls@2
 	ghi	reg1
 	smb          ;that's a standard signed subtraction of one reg
 	glo	reg2-1	;lowest order byte of the top register
-	str	sp 
+	str	sp
 	glo	reg1-1
 	smb
 	ghi	reg2-1
@@ -262,7 +262,7 @@ jcI4:	macro	reg1,reg2,brop,label	;signed comparison of two longs -28 bytes, ls@2
 	lsnf	;bypass the flip if signs were the same
 	xri	01     ;invert original df if signs were different
 	shrc           ;put it back in df
-	brop	label  ;execute 
+	brop	label  ;execute
 	endm
 
 jcU1:	macro	reg1,reg2,brop,label ;
@@ -309,7 +309,7 @@ jcU4:	macro	reg1,reg2,brop,label	;21 bytes, lbr@18
 jcI1I:	macro	reg1,ival,brop,label	;signed comparison - one byte immediate -for nopromo
 	glo	reg1
 	smi	(ival)#256
-	brop	label  ;execute 
+	brop	label  ;execute
 	endm
 jcI2I:	macro	reg1,ival,brop,label	;signed comparison - register immediate -17 bytes, ls@10, lbr@14
 	glo	reg1
@@ -322,7 +322,7 @@ jcI2I:	macro	reg1,ival,brop,label	;signed comparison - register immediate -17 by
 	lsnf	;bypass the df flip if signs were the same
 	xri	01     ;invert original df if signs were different
 	shrc           ;put it back in df
-	brop	label  ;execute 
+	brop	label  ;execute
 	endm
 jnI2I:	macro	reg1,ival,brop,label	;reverse signed comparison - register immediate -17 bytes, ls@10, lbr@14
 	glo	reg1
@@ -335,7 +335,7 @@ jnI2I:	macro	reg1,ival,brop,label	;reverse signed comparison - register immediat
 	lsnf	;bypass the df flip if signs were the same
 	xri	01     ;invert original df if signs were different
 	shrc           ;put it back in df
-	brop	label  ;execute 
+	brop	label  ;execute
 	endm
 jcU2I:	macro	reg1,ival,brop,label ;-9 bytes, lbr@6
 	glo	reg1
@@ -491,7 +491,7 @@ ld2z:	macro	reg1	;load zero into a 16 bit register
 	phi	reg1
 	endm
 ldAD:	macro	reg1,directaddress	;load an absolute address or a constant into a register
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
  	RLDI	reg1,directaddress
  else
 	ldi	(directaddress)&255
@@ -588,12 +588,12 @@ sext4:	macro	lreg	;sign extend from the bottom register to the top of a register
 	smi	1	;D is now 0 for +v numbers, FF for -v
 	plo	lreg-1	;low order of top of pair
 	phi	lreg-1	;high byte
-	endm	
+	endm
 zext4:	macro	lreg	;clear the top of a register pair
 	ldi	0	;source a 0
 	plo	lreg-1	;low order of top of pair
 	phi	lreg-1	;high byte
-	endm	
+	endm
 shL2I:	macro	reg,n	;shift register left n bits
 	rept	n
 	shl2	reg
@@ -682,7 +682,7 @@ negI2:	macro	tgt,src			;two byte negation from src to tgt
 	phi	tgt
 	inc	tgt
 	endm
-alu2I: macro	tgt,src,imm,op1,op2	;2 byte register/immediate alu operation 
+alu2I: macro	tgt,src,imm,op1,op2	;2 byte register/immediate alu operation
 	glo 	src
 	op1	(imm)#256
 	plo	tgt
@@ -690,7 +690,7 @@ alu2I: macro	tgt,src,imm,op1,op2	;2 byte register/immediate alu operation
 	op2	(imm)>>8; was/256
 	phi	tgt
 	endm
-alu1: macro	tgt,src1,src2,op1,op2	;1 byte register/register alu operation with 9 bit result 
+alu1: macro	tgt,src1,src2,op1,op2	;1 byte register/register alu operation with 9 bit result
 	glo 	src2
 	str	sp
 	glo	src1
@@ -699,8 +699,8 @@ alu1: macro	tgt,src1,src2,op1,op2	;1 byte register/register alu operation with 9
 	ldi	0
 	op2	0		;calculate the high byte in case of carry/borrow
 	phi	tgt
-	endm	
-alu2: macro	tgt,src1,src2,op1,op2	;2 byte register/register alu operation 
+	endm
+alu2: macro	tgt,src1,src2,op1,op2	;2 byte register/register alu operation
 	glo 	src2
 	str	sp
 	glo	src1
@@ -711,7 +711,7 @@ alu2: macro	tgt,src1,src2,op1,op2	;2 byte register/register alu operation
 	ghi	src1
 	op2		;calculate the high byte
 	phi	tgt
-	endm	
+	endm
 alu2RRS: macro 	tgtreg,opreg,OorD,basereg,offset,op1,op2 ;adds register to storage result in register
 	lda2	memaddr,OorD,basereg,offset+1
 	sex	memaddr
@@ -840,9 +840,9 @@ str2I:	macro	immedval,addrReg ;2 byte immediate store to address pointed to by a
 	dec	addrReg
 	endm
 
-	
+
 nop1806: macro	;used to inject no-ops to balance timing with an 1802
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
 	nop	;waste 1.5 instruction times
  endif
 	endm
@@ -850,11 +850,11 @@ CcallD:	macro	target ;direct call
    IFDEF LCCCX
  	ghi	r15	;#20-05-01 for COMX
    ENDIF
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
  	IF VERSION<0x142F ;syntax for SCAL changed with version 4.1.2
  		SCAL	6
 		dw	target
- 	ELSE	
+ 	ELSE
  		SCAL	6,target
  	ENDIF
 
@@ -865,7 +865,7 @@ CcallD:	macro	target ;direct call
 	endm
 
 Cretn:	macro
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
  	sret	6
  else
    IFDEF LCCCX
@@ -876,7 +876,7 @@ Cretn:	macro
 	endm
 
 pushr:	macro	reg
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
  	RSXD	reg
  else
 	glo	reg
@@ -918,7 +918,7 @@ popr:	macro	reg	;routine standalone pop - inc's sp before load
  	plo	reg
 	endm
 popf:	macro	reg	;first pop in a string - uses RLXA, leaves stack 'dirty'
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
  	inc 	sp
  	RLXA	reg
  else
@@ -930,7 +930,7 @@ popf:	macro	reg	;first pop in a string - uses RLXA, leaves stack 'dirty'
  endif
 	endm
 popm:	macro	reg	;middle pop - uses RLXA - leaves stack dirty
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
  	RLXA	reg
  else
 	lda	sp
@@ -945,10 +945,10 @@ popl:	macro	reg	;final pop - assumes sp already inc'd - leaves stack 'clean'
  	ldn	sp
  	plo	reg
  	endm
-	
+
 ;more natural 1802 macros
 ldiReg:	macro	reg,value
- if MOMCPU=$1805
+ if MOMCPUNAME="1805A"
  	RLDI	reg,value
  else
 	ldi	(value)&255
@@ -956,42 +956,42 @@ ldiReg:	macro	reg,value
 	ldi	(value)>>8; was/256
 	phi	reg
  endif
-	endm		
+	endm
 
 inc4:	macro	Lreg	;increment a 4 byte register pair
 	alu4i	Lreg,Lreg,1,adi,adci
 	endm
-	
+
 alu4i:	macro	ltgt,lsrc,immval,op1,op2
-	glo	Lsrc	;long regs are equated to the second reg which has the low order word 
+	glo	Lsrc	;long regs are equated to the second reg which has the low order word
 	op1	(immval)&255
 	plo	Ltgt
 	ghi	Lsrc
-	op2	((immval)>>8)&255; 
+	op2	((immval)>>8)&255;
 	phi	Ltgt
 	glo	Lsrc-1
-	op2	((immval)>>16)&255; 
+	op2	((immval)>>16)&255;
 	plo	Ltgt-1
 	ghi	Lsrc-1
-	op2	((immval)>>24)&255; 
+	op2	((immval)>>24)&255;
 	phi	Ltgt-1
 	endm
 
 ldi4	macro	lreg,immval ;4 byte load signed literal
 	ldi	(immval)&255
 	plo	lreg
-	ldi	((immval)>>8)&255; 
+	ldi	((immval)>>8)&255;
 	phi	lreg
-	ldi	((immval)>>16)&255; 
+	ldi	((immval)>>16)&255;
 	plo	lreg-1
-	ldi	((immval)>>24)&255; 
+	ldi	((immval)>>24)&255;
 	phi	lreg-1
 	endm
 
 cpy4:	macro	tgt,src			;4 byte register pair copy
 	cpy2	tgt,src	;long reg pairs are addressed as the low order pair
 	cpy2	tgt-1,src-1
-	endm	
+	endm
 st4:	macro	reg,OorD,destBase,destOff ;4 byte store to direct memory address or base+offset
 	if	(OorD='O')
 		ldAX	memAddr,destbase,destoff
@@ -1026,7 +1026,7 @@ ld4:	macro	reg,OorD,destBase,destOff ;4 byte load from direct memory address or 
 	plo	reg
 	endm
 
-alu4: macro	tgt,src1,src2,op1,op2	;4 byte register/register alu operation 
+alu4: macro	tgt,src1,src2,op1,op2	;4 byte register/register alu operation
 	dec	sp ;make a work ares
 	glo 	src2	;long register pairs are addressed by their second member
 	str	sp	;so arithmetic operations start there
@@ -1049,7 +1049,7 @@ alu4: macro	tgt,src1,src2,op1,op2	;4 byte register/register alu operation
 	op2		;calculate the high byte
 	phi	tgt-1
 	inc	sp 	;release the work area
-	endm	
+	endm
 shrI4I:	macro	reg,n	;shift register right n bits - signed
 	rept	n
 	shrI4	reg
@@ -1112,7 +1112,7 @@ shRU4R:	macro	reg,regn	;shift long register right by count in regn - signed
 	endm
 shrU4:	macro	reg	;shift long register right once - usigned
 	ghi	reg-1	;long reg pairs start at reg-1
-	shr		;shift one bit 
+	shr		;shift one bit
 	phi	reg-1
 	glo	reg-1
 	shrc		;continue the shift
