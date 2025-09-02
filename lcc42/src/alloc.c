@@ -7,7 +7,7 @@ struct block {
 union align {
 	long l;
 	char *p;
-	double d;
+	long double d;
 	int (*f)(void);
 };
 union header {

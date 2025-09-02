@@ -847,5 +847,6 @@ void asminline(Node p) {
         *oreg++ = 0;*/
 
         print("%s", asmi);
+		free(asmi);
 
 }
